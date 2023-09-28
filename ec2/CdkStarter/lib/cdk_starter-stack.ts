@@ -1,6 +1,8 @@
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
+import { CfnOutput } from 'aws-cdk-lib';
+
 import {readFileSync} from 'fs';
 
 
@@ -32,6 +34,12 @@ export class CdkStarterStack extends cdk.Stack {
     webserverSG.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(80),
+      'allow HTTP traffic from anywhere',
+    );
+
+    webserverSG.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(3000),
       'allow HTTP traffic from anywhere',
     );
 
@@ -71,6 +79,10 @@ export class CdkStarterStack extends cdk.Stack {
      const userDataScript = readFileSync('./lib/user-data.sh', 'utf8');
      // 👇 add the User Data script to the Instance
      ec2Instance.addUserData(userDataScript);
+
+     new CfnOutput(this, 'EC2 AP2', {
+      value: ec2Instance.instancePublicIp + ec2Instance.instanceId,
+    });
 
 
   }
